@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alight Motion Premium Generator | 3D</title>
+
+    <style>
+        :root {
+            --bg: #0a0a14;
+            --purple: #7c3aed;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --surface: rgba(15, 15, 30, 0.75);
+            --text: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10b981;
+            --error: #ef4444;
+            --glow-purple: rgba(124, 58, 237, 0.35);
+            --glow-pink: rgba(236, 72, 153, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            pointer-events: auto;
+        }
+
+        .glass-card {
+            background: var(--surface);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 36px 28px;
+            box-shadow:
+                0 30px 70px rgba(0, 0, 0, 0.55),
+                0 0 60px var(--glow-purple),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            animation: cardEntrance 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%,
+                    rgba(124, 58, 237, 0.08) 0%,
+                    transparent 60%),
+                radial-gradient(ellipse at 70% 80%,
+                    rgba(236, 72, 153, 0.06) 0%,
+                    transparent 60%),
+                radial-gradient(ellipse at 50% 50%,
+                    rgba(6, 182, 212, 0.04) 0%,
+                    transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glass-card.success-glow {
+            box-shadow:
+                0 30px 70px rgba(0, 0, 0, 0.55),
+                0 0 80px rgba(16, 185, 129, 0.5),
+                0 0 120px var(--glow-purple);
+            border-color: rgba(16, 185, 129, 0.3);
+            transition: all 0.6s ease;
+        }
+
+        .glass-card.error-shake {
+            animation: shake 0.5s ease;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.94);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            15% {
+                transform: translateX(-8px);
+            }
+            30% {
+                transform: translateX(8px);
+            }
+            45% {
+                transform: translateX(-6px);
+            }
+            60% {
+                transform: translateX(5px);
+            }
+            75% {
+                transform: translateX(-3px);
+            }
+            90% {
+                transform: translateX(2px);
+            }
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--cyan), transparent, var(--pink));
+            opacity: 0.6;
+            animation: logoShimmer 3s ease-in-out infinite;
+            z-index: -1;
+        }
+        @keyframes logoShimmer {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        .logo-icon span {
+            position: relative;
+            z-index: 1;
+            font-size: 22px;
+        }
+        .title-group h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #e2e8f0, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        .title-group .subtitle {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 20px 0;
+            padding: 0 8px;
+        }
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.4s ease;
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+        }
+        .step-dot.active {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px var(--glow-purple);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        .step-dot.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 20px var(--glow-purple);
+            }
+            50% {
+                box-shadow: 0 0 36px var(--glow-purple), 0 0 50px rgba(124, 58, 237, 0.5);
+            }
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            transition: all 0.5s ease;
+            min-width: 20px;
+        }
+        .step-line.done {
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 13px 16px;
+            padding-right: 44px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+            letter-spacing: 0.01em;
+        }
+        .input-wrapper input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12), 0 0 20px rgba(124, 58, 237, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .input-wrapper input::placeholder {
+            color: rgba(160, 174, 192, 0.45);
+        }
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .input-wrapper input:focus~.input-icon {
+            opacity: 0.9;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+            color: #fff;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple), #6d28d9);
+            box-shadow: 0 8px 28px rgba(124, 58, 237, 0.35);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(124, 58, 237, 0.5);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+            transition: all 0.1s ease;
+        }
+        .btn-verify {
+            background: linear-gradient(135deg, var(--pink), #be185d);
+            box-shadow: 0 8px 28px rgba(236, 72, 153, 0.35);
+        }
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(236, 72, 153, 0.5);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(20%);
+        }
+        .btn .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+        }
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: inline;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-box {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            display: none;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .result-box.show {
+            display: block;
+        }
+        .result-box.error-box {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .result-box .result-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .result-box .result-detail {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            line-height: 1.5;
+        }
+        .result-box .badge-premium {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .footer-link {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s;
+            letter-spacing: 0.02em;
+        }
+        .footer-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .footer-credit {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(160, 174, 192, 0.5);
+            margin-top: 10px;
+            letter-spacing: 0.03em;
+        }
+
+        @media (max-width: 520px) {
+            .glass-card {
+                padding: 24px 16px;
+                border-radius: 22px;
+            }
+            .logo-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                font-size: 18px;
+            }
+            .title-group h1 {
+                font-size: 1.15rem;
+            }
+            .btn {
+                padding: 12px;
+                font-size: 0.9rem;
+                border-radius: 12px;
+            }
+            .input-wrapper input {
+                padding: 11px 14px;
+                padding-right: 38px;
+                font-size: 0.85rem;
+                border-radius: 12px;
+            }
+            .steps {
+                margin: 14px 0;
+            }
+            .step-dot {
+                width: 26px;
+                height: 26px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <canvas id="three-canvas"></canvas>
+
+    <div class="main-container">
+        <div class="glass-card" id="glassCard">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <span>✦</span>
+                </div>
+                <div class="title-group">
+                    <h1>Alight Motion</h1>
+                    <div class="subtitle">Premium Generator</div>
+                </div>
+            </div>
+
+            <div class="steps">
+                <div class="step-dot active" id="stepDot1">1</div>
+                <div class="step-line" id="stepLine"></div>
+                <div class="step-dot" id="stepDot2">2</div>
+            </div>
+
+            <div class="form-group" id="step1Form">
+                <label>📧 Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email">
+                    <span class="input-icon">📨</span>
+                </div>
+                <button class="btn btn-primary" id="btnSend" style="margin-top:12px;">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Kirim Magic Link ✨</span>
+                </button>
+                <p style="font-size:0.7rem;color:var(--text-secondary);margin-top:8px;text-align:center;line-height:1.4;">
+                    Link akan dikirim ke email kamu.<br>Cek folder <strong>Spam</strong> jika tidak muncul.
+                </p>
+            </div>
+
+            <div class="form-group" id="step2Form" style="display:none;">
+                <label>🔗 Paste Raw Link</label>
+                <div class="input-wrapper">
+                    <input type="text" id="linkInput" placeholder="https://alightcreative.com/...">
+                    <span class="input-icon">🔗</span>
+                </div>
+                <p style="font-size:0.68rem;color:var(--text-secondary);margin-top:4px;line-height:1.4;">
+                    📋 Tekan-tahan tombol <em>"Login ke Alight Creative"</em> di email, lalu pilih <strong>Salin URL</strong>.
+                    Jangan klik langsung!
+                </p>
+                <button class="btn btn-verify" id="btnVerify" style="margin-top:10px;">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Verifikasi & Aktifkan 🔐</span>
+                </button>
+                <button class="btn" id="btnBack"
+                    style="margin-top:8px;background:rgba(255,255,255,0.05);color:var(--text-secondary);font-size:0.8rem;border:1px solid rgba(255,255,255,0.1);">
+                    ← Ganti Email
+                </button>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-detail" id="resultDetail"></div>
+                <span class="badge-premium" id="badgePremium" style="display:none;">🌟 PREMIUM 1 TAHUN</span>
+            </div>
+
+            <!-- Footer yang sudah diubah -->
+            <div class="footer-links">
+                <a href="https://wa.me/6285713279720?text=Halo%20Customer%20Service%20Alight%20Motion%20Generator"
+                   target="_blank" rel="noopener" class="footer-link">💬 Customer Service</a>
+            </div>
+            <div class="footer-credit">
+                Base API: am.rafaelxd.my.id &nbsp;|&nbsp; © 2026 RafaelXD
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const canvas = document.getElementById('three-canvas');
+        const glassCard = document.getElementById('glassCard');
+        const stepDot1 = document.getElementById('stepDot1');
+        const stepDot2 = document.getElementById('stepDot2');
+        const stepLine = document.getElementById('stepLine');
+        const step1Form = document.getElementById('step1Form');
+        const step2Form = document.getElementById('step2Form');
+        const emailInput = document.getElementById('emailInput');
+        const linkInput = document.getElementById('linkInput');
+        const btnSend = document.getElementById('btnSend');
+        const btnVerify = document.getElementById('btnVerify');
+        const btnBack = document.getElementById('btnBack');
+        const resultBox = document.getElementById('resultBox');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultDetail = document.getElementById('resultDetail');
+        const badgePremium = document.getElementById('badgePremium');
+
+        let currentStep = 1;
+        let currentEmail = '';
+        let isLoading = false;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('#0a0a14');
+        scene.fog = new THREE.FogExp2('#0a0a14', 0.00025);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 50);
+        camera.position.set(0, 0.8, 9);
+        camera.lookAt(0, 0, 0);
+
+        const rootGroup = new THREE.Group();
+        scene.add(rootGroup);
+
+        const ambientLight = new THREE.AmbientLight('#3b3070', 1.8);
+        rootGroup.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight('#7c3aed', 60, 14, 1.5);
+        pointLight1.position.set(4, 2.5, 5);
+        pointLight1.castShadow = true;
+        pointLight1.shadow.mapSize.width = 512;
+        pointLight1.shadow.mapSize.height = 512;
+        pointLight1.shadow.camera.near = 0.5;
+        pointLight1.shadow.camera.far = 30;
+        pointLight1.shadow.bias = -0.0001;
+        rootGroup.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight('#ec4899', 45, 12, 1.5);
+        pointLight2.position.set(-3.5, -1.5, 4);
+        rootGroup.add(pointLight2);
+
+        const pointLight3 = new THREE.PointLight('#06b6d4', 35, 10, 1.5);
+        pointLight3.position.set(0, 3.5, -4);
+        rootGroup.add(pointLight3);
+
+        const pointLight4 = new THREE.PointLight('#a78bfa', 25, 8, 1.8);
+        pointLight4.position.set(-2, 0.5, 6);
+        rootGroup.add(pointLight4);
+
+        const torusKnotGeom = new THREE.TorusKnotGeometry(1.15, 0.32, 100, 28, 2, 3);
+        const torusKnotMat = new THREE.MeshStandardMaterial({
+            color: '#5b3cc4',
+            roughness: 0.25,
+            metalness: 0.75,
+        });
+        const torusKnot = new THREE.Mesh(torusKnotGeom, torusKnotMat);
+        torusKnot.castShadow = true;
+        torusKnot.receiveShadow = true;
+        const centralGroup = new THREE.Group();
+        centralGroup.add(torusKnot);
+        rootGroup.add(centralGroup);
+
+        const wireframeGeom = new THREE.TorusKnotGeometry(1.18, 0.33, 80, 22, 2, 3);
+        const wireframeMat = new THREE.MeshBasicMaterial({
+            color: '#c084fc',
+            wireframe: true,
+            transparent: true,
+            opacity: 0.55,
+            depthWrite: false,
+        });
+        const wireframeMesh = new THREE.Mesh(wireframeGeom, wireframeMat);
+        wireframeMesh.renderOrder = 1;
+        wireframeMesh.material.depthTest = true;
+        wireframeMesh.material.depthWrite = false;
+        centralGroup.add(wireframeMesh);
+
+        const wireframe2Geom = new THREE.TorusKnotGeometry(1.22, 0.34, 50, 16, 2, 3);
+        const wireframe2Mat = new THREE.MeshBasicMaterial({
+            color: '#f9a8d4',
+            wireframe: true,
+            transparent: true,
+            opacity: 0.2,
+            depthWrite: false,
+        });
+        const wireframe2Mesh = new THREE.Mesh(wireframe2Geom, wireframe2Mat);
+        wireframe2Mesh.renderOrder = 2;
+        wireframe2Mesh.material.depthWrite = false;
+        centralGroup.add(wireframe2Mesh);
+
+        const orbitGroups = [];
+        const orbitConfigs = [
+            { radius: 3.2, speed: 0.35, inclination: 0.45, color: '#ec4899', size: 0.28, shape: 'icosahedron' },
+            { radius: 3.6, speed: 0.28, inclination: -0.6, color: '#06b6d4', size: 0.24, shape: 'octahedron' },
+            { radius: 2.9, speed: 0.42, inclination: 0.8, color: '#a78bfa', size: 0.3, shape: 'dodecahedron' },
+            { radius: 3.4, speed: 0.32, inclination: -0.35, color: '#f472b6', size: 0.22, shape: 'icosahedron' },
+            { radius: 3.1, speed: 0.38, inclination: 0.2, color: '#67e8f9', size: 0.26, shape: 'octahedron' },
+        ];
+
+        orbitConfigs.forEach((config) => {
+            const orbitGroup = new THREE.Group();
+            orbitGroup.rotation.x = config.inclination;
+            rootGroup.add(orbitGroup);
+
+            let geom;
+            switch (config.shape) {
+                case 'icosahedron':
+                    geom = new THREE.IcosahedronGeometry(config.size, 1);
+                    break;
+                case 'octahedron':
+                    geom = new THREE.OctahedronGeometry(config.size, 1);
+                    break;
+                case 'dodecahedron':
+                    geom = new THREE.DodecahedronGeometry(config.size, 0);
+                    break;
+                default:
+                    geom = new THREE.IcosahedronGeometry(config.size, 1);
+            }
+
+            const mat = new THREE.MeshStandardMaterial({
+                color: config.color,
+                roughness: 0.3,
+                metalness: 0.6,
+                emissive: config.color,
+                emissiveIntensity: 0.25,
+            });
+            const mesh = new THREE.Mesh(geom, mat);
+            mesh.position.set(config.radius, 0, 0);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            orbitGroup.add(mesh);
+
+            const wfGeom = geom.clone();
+            const wfMat = new THREE.MeshBasicMaterial({
+                color: config.color,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.5,
+                depthWrite: false,
+            });
+            const wfMesh = new THREE.Mesh(wfGeom, wfMat);
+            wfMesh.scale.set(1.08, 1.08, 1.08);
+            wfMesh.renderOrder = 1;
+            wfMesh.material.depthWrite = false;
+            mesh.add(wfMesh);
+
+            orbitGroups.push({
+                group: orbitGroup,
+                mesh,
+                wfMesh,
+                speed: config.speed,
+                radius: config.radius,
+                angle: Math.random() * Math.PI * 2,
+            });
+        });
+
+        const ringGeom = new THREE.TorusGeometry(2.6, 0.03, 32, 180);
+        const ringMat = new THREE.MeshStandardMaterial({
+            color: '#06b6d4',
+            roughness: 0.2,
+            metalness: 0.9,
+            emissive: '#06b6d4',
+            emissiveIntensity: 0.5,
+        });
+        const ring = new THREE.Mesh(ringGeom, ringMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.receiveShadow = true;
+        rootGroup.add(ring);
+
+        const ring2Geom = new THREE.TorusGeometry(2.75, 0.015, 24, 160);
+        const ring2Mat = new THREE.MeshBasicMaterial({
+            color: '#67e8f9',
+            transparent: true,
+            opacity: 0.4,
+            depthWrite: false,
+        });
+        const ring2 = new THREE.Mesh(ring2Geom, ring2Mat);
+        ring2.rotation.x = Math.PI / 2.1;
+        ring2.renderOrder = 0;
+        ring2.material.depthWrite = false;
+        rootGroup.add(ring2);
+
+        const particleCount = window.innerWidth < 768 ? 1200 : 2000;
+        const particlesGeom = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const radius = 5 + Math.random() * 9;
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+            sizes[i] = Math.random() * 2.5 + 0.5;
+        }
+
+        particlesGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeom.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const particlesMat = new THREE.PointsMaterial({
+            color: '#c4b5fd',
+            size: 0.03,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            transparent: true,
+            opacity: 0.7,
+            sizeAttenuation: true,
+        });
+        const particles = new THREE.Points(particlesGeom, particlesMat);
+        rootGroup.add(particles);
+
+        const floatingOrbs = [];
+        for (let i = 0; i < 8; i++) {
+            const orbGeom = new THREE.SphereGeometry(0.06 + Math.random() * 0.1, 16, 16);
+            const orbMat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color().setHSL(0.7 + Math.random() * 0.3, 0.8, 0.6 + Math.random() * 0.4),
+                transparent: true,
+                opacity: 0.6 + Math.random() * 0.4,
+                depthWrite: false,
+            });
+            const orb = new THREE.Mesh(orbGeom, orbMat);
+            orb.position.set(
+                (Math.random() - 0.5) * 8,
+                (Math.random() - 0.5) * 6,
+                (Math.random() - 0.5) * 5
+            );
+            orb.renderOrder = 3;
+            orb.material.depthWrite = false;
+            rootGroup.add(orb);
+            floatingOrbs.push({
+                mesh: orb,
+                baseY: orb.position.y,
+                speed: 0.3 + Math.random() * 0.7,
+                amplitude: 0.3 + Math.random() * 1.2,
+                phase: Math.random() * Math.PI * 2,
+            });
+        }
+
+        const mouse = { x: 0, y: 0 };
+        const targetMouse = { x: 0, y: 0 };
+
+        window.addEventListener('mousemove', (e) => {
+            targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                targetMouse.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+                targetMouse.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+            }
+        }, { passive: true });
+
+        let animState = 'idle';
+        let animStateTimer = 0;
+
+        window.setAnimState = (state) => {
+            animState = state;
+            animStateTimer = 0;
+            if (state === 'success') {
+                pointLight1.intensity = 100;
+                pointLight2.intensity = 80;
+                pointLight3.intensity = 60;
+                setTimeout(() => {
+                    pointLight1.intensity = 60;
+                    pointLight2.intensity = 45;
+                    pointLight3.intensity = 35;
+                }, 1500);
+            }
+            if (state === 'error') {
+                pointLight2.color.set('#ef4444');
+                pointLight2.intensity = 80;
+                setTimeout(() => {
+                    pointLight2.color.set('#ec4899');
+                    pointLight2.intensity = 45;
+                }, 800);
+            }
+        };
+
+        const clock = new THREE.Clock();
+        let elapsedTotal = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const dt = Math.min(clock.getDelta(), 0.1);
+            elapsedTotal += dt;
+            animStateTimer += dt;
+
+            mouse.x += (targetMouse.x - mouse.x) * 3 * dt;
+            mouse.y += (targetMouse.y - mouse.y) * 3 * dt;
+
+            rootGroup.rotation.y += (mouse.x * 0.35 - rootGroup.rotation.y) * 2.5 * dt;
+            rootGroup.rotation.x += (mouse.y * 0.2 - rootGroup.rotation.x) * 2.5 * dt;
+
+            const baseSpeed = animState === 'loading' ? 1.8 : animState === 'success' ? 2.5 : 0.55;
+            centralGroup.rotation.y += baseSpeed * dt;
+            centralGroup.rotation.x += baseSpeed * 0.35 * dt;
+            centralGroup.rotation.z += Math.sin(elapsedTotal * 0.4) * 0.15 * dt;
+
+            const breatheScale = 1 + Math.sin(elapsedTotal * 1.2) * 0.04;
+            centralGroup.scale.setScalar(breatheScale);
+
+            wireframeMesh.rotation.y -= baseSpeed * 0.7 * dt;
+            wireframeMesh.rotation.x -= baseSpeed * 0.25 * dt;
+            wireframe2Mesh.rotation.y += baseSpeed * 1.1 * dt;
+            wireframe2Mesh.rotation.z += baseSpeed * 0.5 * dt;
+
+            orbitGroups.forEach((orb) => {
+                orb.angle += orb.speed * dt * (animState === 'loading' ? 2.5 : animState === 'success' ? 3.5 : 1);
+                orb.group.rotation.y = orb.angle;
+                orb.mesh.rotation.x += 0.8 * dt;
+                orb.mesh.rotation.y += 1.2 * dt;
+                if (orb.wfMesh) {
+                    orb.wfMesh.rotation.z -= 1.5 * dt;
+                }
+            });
+
+            ring.rotation.z += 0.15 * dt;
+            ring2.rotation.z -= 0.2 * dt;
+
+            particles.rotation.y += 0.04 * dt;
+            particles.rotation.x += 0.025 * dt;
+
+            floatingOrbs.forEach((fo) => {
+                fo.mesh.position.y = fo.baseY + Math.sin(elapsedTotal * fo.speed + fo.phase) * fo.amplitude;
+                fo.mesh.position.x += Math.cos(elapsedTotal * fo.speed * 0.7 + fo.phase) * 0.003;
+            });
+
+            pointLight1.intensity += (60 + Math.sin(elapsedTotal * 0.7) * 8 - pointLight1.intensity) * 2 * dt;
+            pointLight2.intensity += (45 + Math.cos(elapsedTotal * 0.9) * 6 - pointLight2.intensity) * 2 * dt;
+            pointLight3.intensity += (35 + Math.sin(elapsedTotal * 0.5 + 1) * 5 - pointLight3.intensity) * 2 * dt;
+
+            if (animState === 'success' && animStateTimer < 3) {
+                particlesMat.opacity = 0.7 + Math.sin(elapsedTotal * 8) * 0.3;
+                particlesMat.size = 0.03 + Math.sin(elapsedTotal * 10) * 0.015;
+            } else if (animState === 'idle' || animStateTimer > 3) {
+                particlesMat.opacity += (0.7 - particlesMat.opacity) * 3 * dt;
+                particlesMat.size += (0.03 - particlesMat.size) * 3 * dt;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+
+        function setStep(step) {
+            currentStep = step;
+            if (step === 1) {
+                step1Form.style.display = 'block';
+                step2Form.style.display = 'none';
+                stepDot1.classList.add('active');
+                stepDot1.classList.remove('done');
+                stepDot2.classList.remove('active', 'done');
+                stepLine.classList.remove('done');
+                resultBox.classList.remove('show', 'error-box');
+                resultBox.style.display = 'none';
+                badgePremium.style.display = 'none';
+                glassCard.classList.remove('success-glow', 'error-shake');
+                window.setAnimState('idle');
+            } else if (step === 2) {
+                step1Form.style.display = 'none';
+                step2Form.style.display = 'block';
+                stepDot1.classList.remove('active');
+                stepDot1.classList.add('done');
+                stepDot2.classList.add('active');
+                stepDot2.classList.remove('done');
+                stepLine.classList.add('done');
+                resultBox.classList.remove('show', 'error-box');
+                resultBox.style.display = 'none';
+                badgePremium.style.display = 'none';
+                glassCard.classList.remove('success-glow', 'error-shake');
+                linkInput.focus();
+                window.setAnimState('idle');
+            }
+        }
+
+        function setLoading(btn, loading) {
+            isLoading = loading;
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                window.setAnimState('loading');
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        function showResult(success, title, detail, isPremium = false) {
+            resultBox.style.display = 'block';
+            resultBox.classList.remove('error-box');
+            resultBox.classList.add('show');
+            resultTitle.textContent = title;
+            resultDetail.innerHTML = detail;
+            badgePremium.style.display = isPremium ? 'inline-block' : 'none';
+
+            if (!success) {
+                resultBox.classList.add('error-box');
+                glassCard.classList.add('error-shake');
+                window.setAnimState('error');
+                setTimeout(() => glassCard.classList.remove('error-shake'), 600);
+            } else if (isPremium) {
+                glassCard.classList.add('success-glow');
+                window.setAnimState('success');
+            }
+        }
+
+        async function apiSend(email) {
+            const response = await fetch('/api/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Gagal mengirim link');
+            return data;
+        }
+
+        async function apiVerify(email, rawLink) {
+            const response = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, rawLink }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Gagal verifikasi');
+            return data;
+        }
+
+        btnSend.addEventListener('click', async () => {
+            if (isLoading) return;
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                showResult(false, '⚠️ Error', 'Masukkan alamat email yang valid.');
+                return;
+            }
+            currentEmail = email;
+            setLoading(btnSend, true);
+            resultBox.style.display = 'none';
+
+            try {
+                const data = await apiSend(email);
+                setStep(2);
+                showResult(true, '✅ Link Terkirim!',
+                    'Cek inbox (dan folder <strong>Spam</strong>) email kamu.<br>Cari email dari <em>Alight Motion</em> / <em>Alight Creative</em>.<br>📋 <strong>Tekan-tahan</strong> tombol login, lalu <strong>Salin URL</strong>.<br>Paste link tersebut di kolom di atas.'
+                    );
+                linkInput.value = '';
+            } catch (err) {
+                showResult(false, '❌ Gagal', err.message);
+            } finally {
+                setLoading(btnSend, false);
+            }
+        });
+
+        btnVerify.addEventListener('click', async () => {
+            if (isLoading) return;
+            const rawLink = linkInput.value.trim();
+            if (!rawLink || !rawLink.startsWith('http')) {
+                showResult(false, '⚠️ Error', 'Paste link yang valid (harus diawali https://).<br>Pastikan kamu menyalin URL, bukan klik langsung.');
+                return;
+            }
+            setLoading(btnVerify, true);
+            resultBox.style.display = 'none';
+
+            try {
+                const data = await apiVerify(currentEmail, rawLink);
+                const profileInfo = data.userProfile ?
+                    `<br>👤 ${data.userProfile.displayName || 'User'}` :
+                    '';
+                const idTokenPreview = data.idToken ?
+                    `<br><small style="opacity:0.7;">Token: ${data.idToken.substring(0, 30)}...</small>` :
+                    '';
+                showResult(true,
+                    '🎉 Premium Berhasil Diaktifkan!',
+                    `${data.message || 'Akun premium siap digunakan.'}${profileInfo}${idTokenPreview}<br><small style="opacity:0.6;">⏳ Durasi: <strong>1 Tahun</strong></small>`,
+                    true
+                );
+                stepDot2.classList.remove('active');
+                stepDot2.classList.add('done');
+                linkInput.value = '';
+            } catch (err) {
+                showResult(false, '❌ Verifikasi Gagal', err.message +
+                    '<br><small>Pastikan link masih segar (belum kadaluarsa). Coba kirim ulang magic link.</small>');
+            } finally {
+                setLoading(btnVerify, false);
+            }
+        });
+
+        btnBack.addEventListener('click', () => {
+            setStep(1);
+            emailInput.value = currentEmail;
+            emailInput.focus();
+        });
+
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && currentStep === 1) {
+                e.preventDefault();
+                btnSend.click();
+            }
+        });
+        linkInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && currentStep === 2) {
+                e.preventDefault();
+                btnVerify.click();
+            }
+        });
+
+        emailInput.focus();
+
+        console.log('%c🚀 Alight Motion Premium Generator %c| 3D Ready',
+            'color:#c084fc;font-size:1.2em;font-weight:bold;',
+            'color:#e2e8f0;');
+        console.log('%c💡 Tip: Gerakkan mouse untuk eksplorasi 3D!',
+            'color:#a0aec0;font-style:italic;');
+        console.log('%c👨‍💻 Customer Service: 6285713279720 %c| Base: am.rafaelxd.my.id',
+            'color:#f9a8d4;', 'color:#a0aec0;');
+    </script>
+</body>
+</html>
